@@ -13,8 +13,8 @@ class UserRecord implements UserEntity {
     public password: string;
 
     constructor(obj: UserEntity) {
-        if (obj.username.length > 50 || obj.username.length < 6) {
-            throw new ValidationError('Nazwa użytkownika powinna mieć od 6 do 50 znaków.');
+        if (obj.username.length > 25 || obj.username.length < 4) {
+            throw new ValidationError('Nazwa użytkownika powinna mieć od 4 do 25 znaków.');
         }
 
         if (obj.email.length > 320 || obj.email.length < 5) {
