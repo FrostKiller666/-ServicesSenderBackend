@@ -21,5 +21,28 @@ export const userRouter = Router()
                 res.json(user);
             }
         });
+    }).post('/login', async (req, res) => {
+        const user = req.body;
+        const {email, password} = user.data;
+
+        if ((email || password) === undefined) {
+            throw new ValidationError('Coś poszło nie tak, spróbuj potem. ');
+        }
+
+        const userData = await UserRecord.getOne(email);
+        if (!userData) {
+            throw new ValidationError('Taki adres mailowy nie istnieje.');
+        }
+
+        if (await compare(password, userData.password)) {
+
+            res.json({
+                userId: userData.id,
+            });
+
+        } else {
+            throw new ValidationError('Hasła są nieprawidłowe, spróbuj jeszcze raz.');
+        }
+
     });
 
