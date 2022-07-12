@@ -31,8 +31,8 @@ app.use(rateLimit({
     max: 100, // Limit each IP to 100 requests per `window` (here, per 1115 minutes)
 }));
 
-app.use(handleError);
 app.use('/user', userRouter);
+app.use(handleError);
 
 app.listen(3001, '0.0.0.0', () => {
     console.log('Listening on http://localhost:3001');
