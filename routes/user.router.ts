@@ -1,8 +1,16 @@
-import {Router} from "express";
+import {Request, Router} from "express";
+import jwt, {JwtPayload} from 'jsonwebtoken';
 import {compare, hash} from 'bcrypt';
 
 import {ValidationError} from "../utils/errrors";
 import {UserRecord} from "../records/user.record";
+import {authenticate} from "../utils/authenticate";
+
+
+
+interface CustomRequest extends Request {
+    token: string | JwtPayload;
+}
 
 export const userRouter = Router()
 
@@ -35,7 +43,8 @@ export const userRouter = Router()
         }
 
         if (await compare(password, userData.password)) {
-
+            const accessToken = jwt.sign({username: userData.username}, process.env.TOKEN_SECRET, {expiresIn: '30 days'});
+            res.cookie("JWT", accessToken, { httpOnly: true, secure: true, maxAge: 900000 });
             res.json({
                 userId: userData.id,
             });
@@ -44,5 +53,15 @@ export const userRouter = Router()
             throw new ValidationError('Hasła są nieprawidłowe, spróbuj jeszcze raz.');
         }
 
+    })
+    .get('/auth', authenticate, async (req, res) => {
+        const token = req.cookies.JWT;
+        const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+        (req as CustomRequest).token = decoded;
+
+        // @ts-ignore
+        const userData = await UserRecord.getOneUser(decoded.username);
+
+        res.json(userData);
     });
 
