@@ -12,6 +12,13 @@ interface CustomRequest extends Request {
     token: string | JwtPayload;
 }
 
+interface ResponseUser {
+    oldPassword: string;
+    password: string;
+    resPassword: string;
+    resUsername: string;
+}
+
 export const userRouter = Router()
 
     .post('/register', async (req, res) => {
@@ -70,6 +77,33 @@ export const userRouter = Router()
             res.json('Cookie removed');
         }catch (err) {
             throw new ValidationError('Problem with logout, sorry try later.')
+        }
+
+    })
+    .patch('/change-password',  async (req, res) => {
+        const userData: ResponseUser = req.body;
+
+        if(!userData) {
+            throw new ValidationError('Coś poszło nie tak przy rejestrowaniu konta, spróbuj zakilka chwil.')
+        }
+
+        if (await compare(userData.oldPassword, userData.resPassword)) {
+            hash(userData.password, 10, async (err, hash) => {
+                try {
+                    if(userData.password.length > 36 || userData.password.length <8) {
+                        throw new ValidationError('Hasło musi być w przedziale od 8 do 36');
+                    }
+                    await UserRecord.patchPassword(hash, userData.resUsername);
+                    res.json({
+                        message: 'Hasło zostało pomyślnie zmienione, dziękujemy.',
+                    })
+
+                } catch (err) {
+                    throw new ValidationError('Coś poszło nie przy próbie hashowania, prosimy o cierpliwość.');
+                }
+            })
+        } else {
+            throw new ValidationError('Twoje stare hasło było inne, spróbuj jeszcze raz.');
         }
 
     });
