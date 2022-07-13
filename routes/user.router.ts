@@ -1,23 +1,13 @@
-import {Request, Router} from "express";
-import jwt, {JwtPayload} from 'jsonwebtoken';
+import {Router} from "express";
+import jwt from 'jsonwebtoken';
 import {compare, hash} from 'bcrypt';
 
 import {ValidationError} from "../utils/errrors";
 import {UserRecord} from "../records/user.record";
 import {authenticate} from "../utils/authenticate";
+import {ResponseUserPassword, ResponseUserUsername} from "../types";
+import {CustomRequest} from "../types/jwt/jwt-customr-request";
 
-
-
-interface CustomRequest extends Request {
-    token: string | JwtPayload;
-}
-
-interface ResponseUser {
-    oldPassword: string;
-    password: string;
-    resPassword: string;
-    resUsername: string;
-}
 
 export const userRouter = Router()
 
@@ -81,7 +71,7 @@ export const userRouter = Router()
 
     })
     .patch('/change-password',  async (req, res) => {
-        const userData: ResponseUser = req.body;
+        const userData: ResponseUserPassword = req.body;
 
         if(!userData) {
             throw new ValidationError('Coś poszło nie tak przy rejestrowaniu konta, spróbuj zakilka chwil.')
@@ -94,9 +84,9 @@ export const userRouter = Router()
                         throw new ValidationError('Hasło musi być w przedziale od 8 do 36');
                     }
                     await UserRecord.patchPassword(hash, userData.resUsername);
-                    res.json({
+                    res.status(200).json({
                         message: 'Hasło zostało pomyślnie zmienione, dziękujemy.',
-                    })
+                    });
 
                 } catch (err) {
                     throw new ValidationError('Coś poszło nie przy próbie hashowania, prosimy o cierpliwość.');
@@ -104,6 +94,26 @@ export const userRouter = Router()
             })
         } else {
             throw new ValidationError('Twoje stare hasło było inne, spróbuj jeszcze raz.');
+        }
+
+    })
+    .patch('/change-username',  async (req, res) => {
+        const userData: ResponseUserUsername = req.body;
+
+        if(!userData) {
+            throw new ValidationError('Coś poszło nie tak przy zmianie nicku, spróbuj za kilka chwil.')
+        }
+
+        try {
+           await UserRecord.patchUsername(userData.resId, userData.username);
+            const accessToken = jwt.sign({username: userData.username}, process.env.TOKEN_SECRET, {expiresIn: '30 days'});
+            res.cookie("JWT", accessToken, { httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+
+           res.status(200).json({
+               message: 'Nick został pomyślnie zmieniony.',
+            });
+        } catch (err) {
+            throw new ValidationError('Ten nick jest zajęty.')
         }
 
     });

@@ -69,6 +69,13 @@ class UserRecord implements UserEntity {
         })
     }
 
+    static async patchUsername(id: string, username: string): Promise<void> {
+        await pool.execute("UPDATE `users` SET `username` = :username WHERE `id` LIKE :id", {
+            id,
+            username
+        })
+    }
+
     static async getAll(): Promise<UserEntity[] | null> {
         const [results] = (await pool.execute("SELECT * FROM `users` ")) as typeExecuteHandler;
 

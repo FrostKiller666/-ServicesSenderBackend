@@ -1,10 +1,7 @@
 import {NextFunction, Request, Response} from "express";
-import jwt, {JwtPayload} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import {ValidationError} from "./errrors";
-
-interface CustomRequest extends Request {
-    token: string | JwtPayload;
-}
+import {CustomRequest} from "../types/jwt/jwt-customr-request";
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
     try {
