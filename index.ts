@@ -1,4 +1,4 @@
-import express, {Request} from "express";
+import express from "express";
 import dotenv from 'dotenv';
 import cors from "cors";
 import rateLimit from 'express-rate-limit';
@@ -9,13 +9,9 @@ import './utils/db';
 import {config} from "./config/config";
 import {handleError} from "./utils/errrors";
 import {userRouter} from "./routes/user.router";
-import jwt, {JwtPayload} from "jsonwebtoken";
-import {UserRecord} from "./records/user.record";
-import {authenticate} from "./utils/authenticate";
+import {orderRouter} from "./routes/order.router";
 
-interface CustomRequest extends Request {
-    token: string | JwtPayload;
-}
+
 
 dotenv.config();
 const app = express();
@@ -32,6 +28,7 @@ app.use(rateLimit({
 }));
 
 app.use('/user', userRouter);
+app.use('/order', orderRouter);
 app.use(handleError);
 
 app.listen(3001, '0.0.0.0', () => {

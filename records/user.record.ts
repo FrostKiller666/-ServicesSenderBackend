@@ -62,26 +62,6 @@ class UserRecord implements UserEntity {
         return this.id;
     }
 
-    static async patchPassword(password: string, username: string): Promise<void> {
-        await pool.execute("UPDATE `users` SET `password` = :password WHERE `username` LIKE :username", {
-            password,
-            username
-        })
-    }
-
-    static async patchUsername(id: string, username: string): Promise<void> {
-        await pool.execute("UPDATE `users` SET `username` = :username WHERE `id` LIKE :id", {
-            id,
-            username
-        })
-    }
-
-    static async getAll(): Promise<UserEntity[] | null> {
-        const [results] = (await pool.execute("SELECT * FROM `users` ")) as typeExecuteHandler;
-
-        return results.length === 0 ? null : results.map(obj => new UserRecord(obj));
-    }
-
     static async getOne(email: string): Promise<UserEntity | null> {
         const [results] = (await pool.execute("SELECT * FROM `users` WHERE `email` LIKE :email", {
             email,
@@ -96,6 +76,20 @@ class UserRecord implements UserEntity {
         })) as typeExecuteHandler;
 
         return results.length === 0 ? null : new UserRecord(results[0]);
+    }
+
+    static async patchPassword(password: string, username: string): Promise<void> {
+        await pool.execute("UPDATE `users` SET `password` = :password WHERE `username` LIKE :username", {
+            password,
+            username
+        })
+    }
+
+    static async patchUsername(id: string, username: string): Promise<void> {
+        await pool.execute("UPDATE `users` SET `username` = :username WHERE `id` LIKE :id", {
+            id,
+            username
+        })
     }
 
 }

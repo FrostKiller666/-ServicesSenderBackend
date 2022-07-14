@@ -2,15 +2,32 @@ import {Router} from "express";
 import jwt from 'jsonwebtoken';
 import {compare, hash} from 'bcrypt';
 
+import {CustomRequest} from "../types/jwt/jwt-customr-request";
 import {ValidationError} from "../utils/errrors";
 import {UserRecord} from "../records/user.record";
 import {authenticate} from "../utils/authenticate";
 import {ResponseUserPassword, ResponseUserUsername} from "../types";
-import {CustomRequest} from "../types/jwt/jwt-customr-request";
-
-
 export const userRouter = Router()
 
+    .get('/auth', authenticate, async (req, res) => {
+        const token = req.cookies.JWT;
+        const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+        (req as CustomRequest).token = decoded;
+
+        // @ts-ignore
+        const userData = await UserRecord.getOneUser(decoded.username);
+
+        res.json(userData);
+    })
+    .get('/clear-cookie',  async (req, res) => {
+        try{
+            res.clearCookie('JWT');
+            res.json('Cookie removed');
+        }catch (err) {
+            throw new ValidationError('Problem with logout, sorry try later.')
+        }
+
+    })
     .post('/register', async (req, res) => {
         const user = new UserRecord(req.body);
 
@@ -26,7 +43,8 @@ export const userRouter = Router()
                 res.json(user);
             }
         });
-    }).post('/login', async (req, res) => {
+    })
+    .post('/login', async (req, res) => {
         const user = req.body;
         const {email, password} = user.data;
 
@@ -51,25 +69,7 @@ export const userRouter = Router()
         }
 
     })
-    .get('/auth', authenticate, async (req, res) => {
-        const token = req.cookies.JWT;
-        const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
-        (req as CustomRequest).token = decoded;
 
-        // @ts-ignore
-        const userData = await UserRecord.getOneUser(decoded.username);
-
-        res.json(userData);
-    })
-    .get('/clear-cookie',  async (req, res) => {
-        try{
-            res.clearCookie('JWT');
-            res.json('Cookie removed');
-        }catch (err) {
-            throw new ValidationError('Problem with logout, sorry try later.')
-        }
-
-    })
     .patch('/change-password',  async (req, res) => {
         const userData: ResponseUserPassword = req.body;
 
@@ -105,16 +105,19 @@ export const userRouter = Router()
         }
 
         try {
-           await UserRecord.patchUsername(userData.resId, userData.username);
-            const accessToken = jwt.sign({username: userData.username}, process.env.TOKEN_SECRET, {expiresIn: '30 days'});
-            res.cookie("JWT", accessToken, { httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+            await UserRecord.patchUsername(userData.resId, userData.username);
+            const accessToken = jwt.sign({username: userData.username}, process.env.TOKEN_SECRET, {expiresIn: 30 * 24 * 60 * 60 * 1000});
+            res.cookie("JWT", accessToken, { httpOnly: true, secure: true, sameSite: true, maxAge: 30 * 24 * 60 * 60 * 1000 });
 
-           res.status(200).json({
-               message: 'Nick został pomyślnie zmieniony.',
+            res.status(200).json({
+                message: 'Nick został pomyślnie zmieniony.',
             });
         } catch (err) {
             throw new ValidationError('Ten nick jest zajęty.')
         }
 
     });
+
+
+
 
