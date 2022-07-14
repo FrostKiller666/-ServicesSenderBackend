@@ -1,4 +1,4 @@
-import {OrderEntity} from "../types/order";
+import {OrderEntity, OrderEntityForUser} from "../types/order";
 import {ValidationError} from "../utils/errrors";
 import {FieldPacket} from "mysql2";
 import {v4 as uuid} from "uuid";
@@ -106,6 +106,38 @@ class OrderRecord implements OrderEntity {
         });
 
         return this.id;
+    }
+
+    static async getAllUserOrder(userId: string): Promise<OrderEntityForUser[] | null> {
+
+        const [results] = (await pool.execute("SELECT * FROM `orders` WHERE `userId` = :userId", {
+            userId,
+        })) as typeExecuteHandler;
+
+        return results.length === 0 ? null : results.map(result => {
+            const {
+                id,
+                pointName,
+                model,
+                part,
+                color,
+                quality,
+                price,
+                information,
+                guarantee
+            } = result;
+            return {
+                id,
+                pointName,
+                model,
+                part,
+                color,
+                quality,
+                price,
+                information,
+                guarantee
+            };
+        });
     }
 
 }

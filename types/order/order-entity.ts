@@ -11,6 +11,10 @@ export interface OrderEntity {
     userId: string;
 }
 
+export interface OrderEntityForUser extends Omit<OrderEntity, 'userId'>{
+
+}
+
 export interface OrderDataReq {
     pointName: string;
     model: string;

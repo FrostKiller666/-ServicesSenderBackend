@@ -68,6 +68,19 @@ export const orderRouter = Router()
                     
                     `,});
 
-        res.json('Email został wysłany.')
+        res.status(200).json({
+            message: 'Email został wysłany.',
+        })
+    })
+    .post('/order-list', async (req, res) => {
+        try {
+            const data = req.body;
+            const listOrders = await OrderRecord.getAllUserOrder(data.userId);
+
+            res.status(200).json(listOrders);
+        } catch (err) {
+            throw new ValidationError('Ptoblem z bazą danych, spróbuj za kilka chwil.')
+        }
+
     });
 
