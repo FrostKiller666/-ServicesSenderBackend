@@ -10,6 +10,7 @@ import {config} from "./config/config";
 import {handleError} from "./utils/errrors";
 import {userRouter} from "./routes/user.router";
 import {orderRouter} from "./routes/order.router";
+import {questionRouter} from "./routes/question.router";
 
 
 
@@ -29,6 +30,7 @@ app.use(rateLimit({
 
 app.use('/user', userRouter);
 app.use('/order', orderRouter);
+app.use('/question', questionRouter);
 app.use(handleError);
 
 app.listen(3001, '0.0.0.0', () => {

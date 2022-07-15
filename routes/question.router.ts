@@ -3,11 +3,11 @@ import nodemailer from "nodemailer";
 
 import {ValidationError} from "../utils/errrors";
 import {configOAuth2} from "../config/config";
-import {OrderRecord} from "../records/order.record";
-import {bodyTableHtml} from "../utils/html/order/bodyTableHtml";
-import {OrderDataReq} from "../types/order";
-import {headTableHtml} from "../utils/html/order/headTableHtml";
-import {informationTableHtml} from "../utils/html/order/informationTableHtml";
+import {bodyTableHtml} from "../utils/html/question/bodyTableHtml";
+import {headTableHtml} from "../utils/html/question/headTableHtml";
+import {informationTableHtml} from "../utils/html/question/informationTableHtml";
+import {QuestionDataReq} from "../types";
+import {QuestionRecord} from "../records/question.record";
 
 
 const {google} = require('googleapis')
@@ -18,20 +18,19 @@ OAuth2_client.setCredentials({
 });
 
 
-export const orderRouter = Router()
+export const questionRouter = Router()
 
-    .post('/new-order', async (req, res) => {
-            //@TODO Try catch block if you want to display onlyone message without all of order record message.
-            await new OrderRecord(req.body).insert();
+    .post('/new-question', async (req, res) => {
+        //@TODO Try catch block if you want to display onlyone message without all of order record message.
+        await new QuestionRecord(req.body).insert();
 
-            res.status(200).json({
-                message: 'Dane zostały, przygotowane do wysłania. Wiadomość zachwilę powinna dotrzeć do odbiorcy.',
-            })
+        res.status(200).json({
+            message: 'Dane zostały, przygotowane do wysłania. Wiadomość zachwilę powinna dotrzeć do odbiorcy.',
+        })
 
     })
-    .post('/new-order/send-email', async (req, res) => {
-        const orderData: OrderDataReq = req.body;
-        orderData.color === '' ? orderData.color = 'BRAK' : orderData.color;
+    .post('/new-question/send-email', async (req, res) => {
+        const orderData: QuestionDataReq = req.body;
         const showInformation = orderData.information !== '';
 
         const accessToken = OAuth2_client.getAccessToken();
@@ -51,14 +50,14 @@ export const orderRouter = Router()
         await transport.sendMail({
             from: `"Bartosz Suski 👻"<${configOAuth2.emailId}>`, // sender address
             to: "bialywilk500@gmail.com", // list of receivers
-            subject: `${orderData.pointName}`, // Subject line
+            subject: `${orderData.pointName} - Dostępność Częśći`, // Subject line
             html: `
                     <table style="border-width: 2px; border-color: black; border-style: dashed; width: 100%">
                         <thead align="left">
                            ${headTableHtml()}
                         </thead>
                         <tbody>
-                            ${bodyTableHtml(orderData.model, orderData.part, orderData.quality, orderData.price, orderData.guarantee, orderData.color)}
+                            ${bodyTableHtml(orderData.model, orderData.part, orderData.quality, orderData.color)}
                         </tbody>
                     </table>                                     
                     ${informationTableHtml(orderData.information, showInformation)}
@@ -69,10 +68,10 @@ export const orderRouter = Router()
             message: 'Email został wysłany.',
         })
     })
-    .post('/order-list', async (req, res) => {
+    .post('/question-list', async (req, res) => {
         try {
             const data = req.body;
-            const listOrders = await OrderRecord.getAllUserOrder(data.userId);
+            const listOrders = await QuestionRecord.getAllUserOrder(data.userId);
 
             res.status(200).json(listOrders);
         } catch (err) {
