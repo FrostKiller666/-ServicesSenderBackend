@@ -8,6 +8,7 @@ import {headTableHtml} from "../utils/html/question/headTableHtml";
 import {informationTableHtml} from "../utils/html/question/informationTableHtml";
 import {QuestionDataReq} from "../types";
 import {QuestionRecord} from "../records/question.record";
+import {OrderRecord} from "../records/order.record";
 
 
 const {google} = require('googleapis')
@@ -79,5 +80,16 @@ export const questionRouter = Router()
             throw new ValidationError('Ptoblem z bazą danych, spróbuj za kilka chwil.')
         }
 
-    });
+    }).patch('/question-list', async (req, res) => {
+        try {
+            const data = req.body;
+            await OrderRecord.patchUsername(data.id, data.arrived);
+
+            res.status(200).json({
+                message: 'success'
+            });
+        } catch (err) {
+            throw new ValidationError('Ptoblem z bazą danych, spróbuj za kilka chwil.')
+        }
+    });;
 

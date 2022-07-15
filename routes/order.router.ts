@@ -89,5 +89,16 @@ export const orderRouter = Router()
         } catch (err) {
             throw new ValidationError('Ptoblem z bazą danych, spróbuj za kilka chwil.')
         }
+    })
+    .patch('/order-list', async (req, res) => {
+        try {
+            const data = req.body;
+            await OrderRecord.patchUsername(data.id, data.arrived);
 
+            res.status(200).json({
+                message: 'success'
+            });
+        } catch (err) {
+            throw new ValidationError('Ptoblem z bazą danych, spróbuj za kilka chwil.')
+        }
     });

@@ -17,7 +17,7 @@ class OrderRecord implements OrderEntity {
     public information: string;
     public guarantee: string;
     public userId: string;
-    public arrived: string | number | boolean;
+    public arrived: number;
 
     constructor(obj: OrderEntity) {
         if (obj.pointName.length > 30 || obj.pointName.length < 5) {
@@ -126,7 +126,7 @@ class OrderRecord implements OrderEntity {
                 price,
                 information,
                 guarantee,
-                arrived
+                arrived,
             } = result;
             return {
                 id,
@@ -138,9 +138,15 @@ class OrderRecord implements OrderEntity {
                 price,
                 information,
                 guarantee,
-                arrived
+                arrived,
             };
         });
+    }
+    static async patchUsername(id: string, arrived: number): Promise<void> {
+        await pool.execute("UPDATE `orders` SET `arrived` = :arrived WHERE `id` LIKE :id", {
+            id,
+            arrived
+        })
     }
 
 }

@@ -6,6 +6,7 @@ export interface QuestionEntity {
     color?: string;
     quality: string;
     information?: string;
+    arrived?: number;
     userId: string;
 }
 

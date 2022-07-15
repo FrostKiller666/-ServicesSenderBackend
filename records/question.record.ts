@@ -14,6 +14,7 @@ class QuestionRecord implements QuestionEntity {
     public quality: string;
     public color: string;
     public information: string;
+    public arrived: number;
     public userId: string;
 
     constructor(obj: QuestionEntity) {
@@ -61,6 +62,7 @@ class QuestionRecord implements QuestionEntity {
         this.quality = obj.quality;
         this.color = obj.color;
         this.information = obj.information;
+        this.arrived = obj.arrived;
         this.userId = obj.userId;
 
     }
@@ -102,6 +104,7 @@ class QuestionRecord implements QuestionEntity {
                 color,
                 quality,
                 information,
+                arrived
             } = result;
             return {
                 id,
@@ -111,8 +114,15 @@ class QuestionRecord implements QuestionEntity {
                 color,
                 quality,
                 information,
+                arrived
             };
         });
+    }
+    static async patchUsername(id: string, arrived: number): Promise<void> {
+        await pool.execute("UPDATE `orders` SET `arrived` = :arrived WHERE `id` LIKE :id", {
+            id,
+            arrived
+        })
     }
 
 }
