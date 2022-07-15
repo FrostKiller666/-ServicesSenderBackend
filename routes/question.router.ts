@@ -27,11 +27,11 @@ export const questionRouter = Router()
         res.status(200).json({
             message: 'Dane zostały, przygotowane do wysłania. Wiadomość zachwilę powinna dotrzeć do odbiorcy.',
         })
-
     })
     .post('/new-question/send-email', async (req, res) => {
         const orderData: QuestionDataReq = req.body;
         const showInformation = orderData.information !== '';
+        orderData.color === '' ? orderData.color = 'BRAK' : orderData.color;
 
         const accessToken = OAuth2_client.getAccessToken();
 
@@ -52,7 +52,8 @@ export const questionRouter = Router()
             to: "bialywilk500@gmail.com", // list of receivers
             subject: `${orderData.pointName} - Dostępność Częśći`, // Subject line
             html: `
-                    <table style="border-width: 2px; border-color: black; border-style: dashed; width: 100%">
+                    <h2>Zapytanie o dostępność częśći: </h2>
+                    <table style="border-width: 2px; border-color: black; border-style: dashed; width: 65%">                        
                         <thead align="left">
                            ${headTableHtml()}
                         </thead>

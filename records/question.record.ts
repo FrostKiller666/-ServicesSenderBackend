@@ -1,4 +1,3 @@
-import {OrderEntityForUser} from "../types/order";
 import {QuestionEntity, QuestionEntityForUser} from "../types";
 import {ValidationError} from "../utils/errrors";
 import {FieldPacket} from "mysql2";

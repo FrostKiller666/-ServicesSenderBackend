@@ -53,6 +53,7 @@ export const orderRouter = Router()
             to: "bialywilk500@gmail.com", // list of receivers
             subject: `${orderData.pointName}`, // Subject line
             html: `
+                    <h2>Zamówienie: </h2>
                     <table style="border-width: 2px; border-color: black; border-style: dashed; width: 100%">
                         <thead align="left">
                            ${headTableHtml()}

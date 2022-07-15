@@ -60,7 +60,8 @@ export const userRouter = Router()
         if (await compare(password, userData.password)) {
             const accessToken = jwt.sign({username: userData.username}, process.env.TOKEN_SECRET, {expiresIn: '30 days'});
             res.cookie("JWT", accessToken, { httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
-            res.json({
+            res.status(200).json({
+                message: 'Pomyślnie zalogowano.',
                 userId: userData.id,
             });
 
