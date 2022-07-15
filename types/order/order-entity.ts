@@ -8,6 +8,7 @@ export interface OrderEntity {
     price: number;
     information?: string;
     guarantee: string;
+    arrived?: string | number | boolean;
     userId: string;
 }
 

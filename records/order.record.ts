@@ -17,6 +17,7 @@ class OrderRecord implements OrderEntity {
     public information: string;
     public guarantee: string;
     public userId: string;
+    public arrived: string | number | boolean;
 
     constructor(obj: OrderEntity) {
         if (obj.pointName.length > 30 || obj.pointName.length < 5) {
@@ -81,7 +82,7 @@ class OrderRecord implements OrderEntity {
         this.information = obj.information;
         this.guarantee = obj.guarantee;
         this.userId = obj.userId;
-
+        this.arrived = obj.arrived;
     }
 
     async insert(): Promise<string> {
@@ -124,7 +125,8 @@ class OrderRecord implements OrderEntity {
                 quality,
                 price,
                 information,
-                guarantee
+                guarantee,
+                arrived
             } = result;
             return {
                 id,
@@ -135,7 +137,8 @@ class OrderRecord implements OrderEntity {
                 quality,
                 price,
                 information,
-                guarantee
+                guarantee,
+                arrived
             };
         });
     }

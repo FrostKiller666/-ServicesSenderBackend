@@ -1,16 +1,20 @@
-export const bodyTableHtml = (model: string, part: string, quality: string, price: string, guarantee: string, color?: string ): string => {
+
+export const newBodyTableHtml = (values: any): any => {
     let bodyTableHtml = "";
-    for (let i = 0; i < 1; i++) {
-        bodyTableHtml = bodyTableHtml + ` 
-            <tr>
-                <th scope="row">${i + 1}</th>
-                <td>${model}</td>
-                <td>${part}</td>
-                <td>${color}</td>
-                <td>${quality}</td>
-                <td>${price}</td>
-                <td>${guarantee}</td>             
-            </tr>`
-    }
+    let index = 0;
+
+    values.forEach((value: any) => {
+        bodyTableHtml +=  ` 
+        <tr>
+            <th scope="row">${++index}</th>
+            <td>${value.model}</td>
+            <td>${value.part}</td>
+            <td>${value.color}</td>
+            <td>${value.quality}</td>
+            <td>${value.price}</td>
+            <td>${value.guarantee}</td>             
+        </tr>`
+    })
+
     return bodyTableHtml;
 }

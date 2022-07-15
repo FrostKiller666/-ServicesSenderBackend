@@ -4,8 +4,8 @@ import nodemailer from "nodemailer";
 import {ValidationError} from "../utils/errrors";
 import {configOAuth2} from "../config/config";
 import {OrderRecord} from "../records/order.record";
-import {bodyTableHtml} from "../utils/html/order/bodyTableHtml";
-import {OrderDataReq} from "../types/order";
+import { newBodyTableHtml} from "../utils/html/order/bodyTableHtml";
+import {OrderDataReq, OrderEntity} from "../types/order";
 import {headTableHtml} from "../utils/html/order/headTableHtml";
 import {informationTableHtml} from "../utils/html/order/informationTableHtml";
 
@@ -22,17 +22,25 @@ export const orderRouter = Router()
 
     .post('/new-order', async (req, res) => {
             //@TODO Try catch block if you want to display onlyone message without all of order record message.
-            await new OrderRecord(req.body).insert();
 
+         await Object.values(req.body).forEach((value: OrderEntity) => {
+             new OrderRecord(value ).insert();
+        })
             res.status(200).json({
                 message: 'Dane zostały, przygotowane do wysłania. Wiadomość zachwilę powinna dotrzeć do odbiorcy.',
             })
 
     })
     .post('/new-order/send-email', async (req, res) => {
-        const orderData: OrderDataReq = req.body;
-        orderData.color === '' ? orderData.color = 'BRAK' : orderData.color;
-        const showInformation = orderData.information !== '';
+        const orderData: any = req.body;
+        let showInformation: string[] = [];
+
+
+        Object.values(req.body).map((value: OrderEntity, index) => {
+            if (value.information) {
+                showInformation.push(value.information);
+            }
+        })
 
         const accessToken = OAuth2_client.getAccessToken();
 
@@ -51,7 +59,7 @@ export const orderRouter = Router()
         await transport.sendMail({
             from: `"Bartosz Suski 👻"<${configOAuth2.emailId}>`, // sender address
             to: "bialywilk500@gmail.com", // list of receivers
-            subject: `${orderData.pointName}`, // Subject line
+            subject: `${orderData[0].pointName}`, // Subject line
             html: `
                     <h2>Zamówienie: </h2>
                     <table style="border-width: 2px; border-color: black; border-style: dashed; width: 100%">
@@ -59,12 +67,14 @@ export const orderRouter = Router()
                            ${headTableHtml()}
                         </thead>
                         <tbody>
-                            ${bodyTableHtml(orderData.model, orderData.part, orderData.quality, orderData.price, orderData.guarantee, orderData.color)}
+                        ${
+                            newBodyTableHtml(Object.values(req.body))
+                        }
                         </tbody>
-                    </table>                                     
-                    ${informationTableHtml(orderData.information, showInformation)}
-                    
-                    `,});
+                    </table>
+                    ${
+                        informationTableHtml(showInformation, showInformation.length === 0 ? false : true)}
+                    `});
 
         res.status(200).json({
             message: 'Email został wysłany.',
@@ -81,4 +91,3 @@ export const orderRouter = Router()
         }
 
     });
-
